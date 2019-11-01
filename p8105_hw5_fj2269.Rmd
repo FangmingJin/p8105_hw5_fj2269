@@ -1,0 +1,42 @@
+---
+title: "p8105_hw5_fj2269"
+author: "Fangming Jin"
+date: "2019/11/1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+```
+
+### Question 1
+
+```{r Q1S1SS1}
+set.seed(10)
+iris_with_missing = iris %>% 
+  map_df(~replace(.x, sample(1:150, 20), NA)) %>%
+  mutate(Species = as.character(Species))
+iris_with_missing
+```
+
+```{r Q1S1SS2}
+replace_function = function(x){
+  
+  if (is.numeric(x)) {
+    y = mean(x, na.rm = TRUE)
+    x = replace_na(x, y)
+  } else if (is.character(x)) {
+    x = replace_na(x, "virginica")
+  }
+  x
+}
+iris_with_missing = map_df(iris_with_missing, replace_function)
+iris_with_missing
+```
+
+### Question 2
+
+```{r Q2S1SS1}
+```
