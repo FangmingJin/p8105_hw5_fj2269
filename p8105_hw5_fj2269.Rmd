@@ -13,6 +13,8 @@ library(rvest)
 
 ### Question 1
 
+**1. import the data**
+
 ```{r Q1S1SS1}
 set.seed(10)
 iris_with_missing = iris %>% 
@@ -20,6 +22,8 @@ iris_with_missing = iris %>%
   mutate(Species = as.character(Species))
 iris_with_missing
 ```
+
+**2. write the function and apply it to iris_with_missing
 
 ```{r Q1S1SS2}
 replace_function = function(x){
@@ -38,5 +42,39 @@ iris_with_missing
 
 ### Question 2
 
-```{r Q2S1SS1}
+**1. tidy the data**
+
+```{r Q2S1, warning=FALSE}
+longitudinal = tibble(name = list.files('./Q2/hw5_data/data')) %>%
+  mutate(result = map(.x = str_c("./Q2/hw5_data/data/",name), ~read.csv(file = .x))) %>%
+  janitor::clean_names() %>%
+  separate(name, c("arm", "ID"), sep = "([\\_\\.])") %>%
+  mutate(arm = recode(arm, "con"="control","exp"="experimental")) %>%
+  mutate(result = map(result, as.numeric())) %>%
+  drop_na()
+longitudinal
+longitudinal %>% unnest %>% unnest
 ```
+
+**2. make spaghetti plot**
+
+```{r Q2S2}
+plot_spag = longitudinal %>% 
+  unnest %>% unnest %>%
+  pivot_longer(
+    week_1:week_8, 
+    names_to = "week", 
+    values_to ="data", 
+    names_prefix = "week_") %>%
+  ggplot(aes(x = week, y = data, group = ID, color = ID)) + 
+    geom_line(size=1) + 
+    facet_grid(~arm) +
+    labs(title = "Observations on each subject in two groups over time", y = "longitudinal data") + 
+    theme(plot.title = element_text(hjust = 0.5), legend.position = "right") +
+    viridis::scale_color_viridis(discrete = TRUE) 
+plot_spag
+```
+
+The longitudinal data in control group does not change over time, and longitudinal data in exprimental group increases significantly as time passes. In first two weeks the longitudinal data in experimental group is close to that in control group. But as time pass, the longitudinal data in experimental group is significanty higher than that in control group. 
+
+### Question 3
